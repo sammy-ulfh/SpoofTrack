@@ -6,7 +6,6 @@ import re
 import time
 import os
 
-from ping3 import ping
 from termcolor import colored
 
 def verify(IP):
