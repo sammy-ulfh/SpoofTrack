@@ -10,6 +10,7 @@ import os
 import time
 
 from termcolor import colored
+from server import Server
 
 # Controlled quite
 def def_handler(sig, frame):
@@ -35,8 +36,13 @@ def get_arguments():
     return args.target, args.interface, args.router, args.mac_address, args.ip_host # return each argument
 
 def run_threads():
+    count = 0
     for thread in threads:
         thread.start()
+        count += 1
+        if count != 3:
+            time.sleep(1)
+            print(colored(f"\n---------------------------------------------------------\n", "blue"))
 
 def define_thread(args, function):
     thread1 = threading.Thread(target=function, args=args)
@@ -49,7 +55,20 @@ def verify_root():
         print(colored("\n[!] Root privileges required.\n", "yellow"))
         os._exit(1)
 
+def server(one):
+    server = Server()
+    print(colored("[+] Server initialized: http://0.0.0.0:80", "green"))
+    server.start_server()
+
+def print_banner():
+    print(colored("""
+█▀ █▀█ █▀█ █▀█ █▀▀ ▀█▀ █▀█ ▄▀█ █▀▀ █▄▀
+▄█ █▀▀ █▄█ █▄█ █▀░ ░█░ █▀▄ █▀█ █▄▄ █░█\n""", 'white'))
+
+    print(colored("""ᴍᴀᴅᴇ ʙʏ sᴀᴍᴍʏ-ᴜʟғʜ ᴀɴᴅ JᴇsᴜsWᴏʀ\n""", 'yellow'))
+
 def main():
+    print_banner()
     verify_root()
 
     global threads, stop_event
@@ -60,6 +79,7 @@ def main():
 
     isValid = arp_spoofer.verify(target, interface, router, mac_address) # Verify format arguments
     define_thread(args=(target, interface, router, mac_address, stop_event, isValid), function=arp_spoofer.main)
+    define_thread(args=("",), function=server)
     define_thread(args=(ip_server,), function=dns_spoofer.main)
     
     run_threads()

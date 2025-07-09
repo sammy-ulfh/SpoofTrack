@@ -3,7 +3,6 @@
 import netfilterqueue
 import scapy.all as scapy
 import re
-import time
 import os
 
 from termcolor import colored
@@ -45,8 +44,6 @@ def process_packet(IP, domain, packet):
 def main(IP, domain='amazon.com'):
 
     isCorrect = verify(IP)
-
-    time.sleep(2)
 
     if isCorrect:
         print(colored("[+] Capturing DNSRR...\n", "green"))
