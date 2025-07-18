@@ -55,11 +55,13 @@ def spoof(target_ip, interface, router_ip, hwsrc, hwdst):
 def revert_spoof():
     global target_mac, router_mac, interface, target, router_ip
 
-    # Revert for target
-    spoof(target, interface, router_ip, target_mac, router_mac)
-    
-    # Revert for router
-    spoof(router_ip, interface, target, router_mac, target_mac)
+    for _ in range(5):
+        # Revert for target
+        spoof(target, interface, router_ip, target_mac, router_mac)
+        
+        # Revert for router
+        spoof(router_ip, interface, target, router_mac, target_mac)
+        time.sleep(0.2)
 
 # Main logic
 def main(t, i, r, h, event, isValid):

