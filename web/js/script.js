@@ -111,7 +111,7 @@ loginFormElement.addEventListener('submit', function (e) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email: email })
+        body: JSON.stringify({ 'email': email })
     })
     .then(response => {
         if (!response.ok) {
@@ -120,8 +120,8 @@ loginFormElement.addEventListener('submit', function (e) {
         return response.json();
     })
     .then(data => {
-        // Procesa la respuesta del servidor
         if (data.success) {
+            currentUser = email;
             showPasswordForm(email);
         } else {
             showError('login', data.message || 'Error en la autenticación');
@@ -130,11 +130,6 @@ loginFormElement.addEventListener('submit', function (e) {
     .catch(error => {
         showError('login', error.message);
     });
-
-    // Simular verificación de usuario existente
-    setTimeout(() => {
-        showPasswordForm(email);
-    }, 500);
 });
 
 passwordFormElement.addEventListener('submit', function (e) {
@@ -157,7 +152,7 @@ passwordFormElement.addEventListener('submit', function (e) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ password: password })
+        body: JSON.stringify({ 'password': password })
     })
     .then(response => {
         if (!response.ok) {
@@ -166,22 +161,16 @@ passwordFormElement.addEventListener('submit', function (e) {
         return response.json();
     })
     .then(data => {
-        // Procesa la respuesta del servidor
         if (data.success) {
-            showPasswordForm(email);
+            alert('¡Inicio de sesión exitoso! (Esta es una simulación)');
+            // Aquí normalmente redirigirías al usuario
         } else {
-            showError('login', data.message || 'Error en la autenticación');
+            showError('password', data.message || 'Error en la autenticación');
         }
     })
     .catch(error => {
-        showError('login', error.message);
+        showError('password', error.message);
     });
-
-    // Simular autenticación
-    setTimeout(() => {
-        alert('¡Inicio de sesión exitoso! (Esta es una simulación)');
-        // Aquí normalmente redirigirías al usuario
-    }, 500);
 });
 
 registerFormElement.addEventListener('submit', function (e) {
@@ -236,3 +225,4 @@ document.getElementById('changeEmail').addEventListener('click', function (e) {
 
 // Inicializar
 showLoginForm();
+
