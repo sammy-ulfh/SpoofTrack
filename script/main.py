@@ -12,15 +12,12 @@ import time
 from termcolor import colored
 from server import Server
 
-server = None
-ip_server = None
-
 # Controlled quite
 def def_handler(sig, frame):
     print(colored("\n[!] Quitting the program...\n", "red"))
     arp_spoofer.revert_spoof()
-    server.replace(ip_server)
     stop_event.set()
+    
     os._exit(1)
 
 signal.signal(signal.SIGINT, def_handler) # CTRL + C
@@ -59,7 +56,6 @@ def verify_root():
         os._exit(1)
 
 def server(ip):
-    global server
     server = Server()
     print(colored(f"[+] Server initialized: http://{ip}:80", "green"))
     server.start_server(ip)
@@ -92,7 +88,7 @@ def main():
     print_banner()
     verify_root()
 
-    global threads, stop_event, ip_server
+    global threads, stop_event
 
     stop_event = threading.Event()
     threads = []

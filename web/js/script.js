@@ -106,7 +106,7 @@ loginFormElement.addEventListener('submit', function (e) {
         return;
     }
 
-    fetch('URL_DEL_ENDPOINT', {
+    fetch('/api/datos', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -147,7 +147,7 @@ passwordFormElement.addEventListener('submit', function (e) {
         return;
     }
 
-    fetch('URL_DEL_ENDPOINT', {
+    fetch('/api/datos', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
