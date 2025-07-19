@@ -30,6 +30,7 @@ You can use it by providing the following options:<br/>
 - [First stepts](#what-do-i-need-to-run-it)
 - [Neccesarry steps before running](#how-does-it-work)
 - [How to run it](#how-do-i-use-it)
+- [Contributors](#Contributors)
 
 ## What do I need to run it?
 
@@ -158,3 +159,8 @@ Then, the tool will work:
         alt="Tool excecution Example"
         style="float: left; margin-right: 10px;">
 </p>
+
+## Contributors
+
+- [JesusWor](https://github.com/JesusWor): Big thanks to [JesusWor](https://www.instagram.com/ing_jesusescobar/)(ig) for creating all of the web development parts in this project.
+- [sammy-ulfh](https://github.com/sammy-ulfh): [sammy-ulfh](https://www.instagram.com/sammy_ulfh/)(ig) handled all aspects of the deception to manipulate traffic and redirect users to a false Amazon login page.
