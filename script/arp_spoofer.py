@@ -9,6 +9,7 @@ import signal
 import sys
 import scapy.all as scapy
 from termcolor import colored
+from ping3 import ping
 
 class ArpSpoof:
 
@@ -76,8 +77,14 @@ class ArpSpoof:
 
     # Main logic
     def start(self, _):
+        
+        p = ping(self.target, timeout=0.5)
 
-        if self.isValid:
+        if not p:
+            print(colored("\n[!] Target is down.\n", "red"))
+            os._exit(1)
+            return
+        elif self.isValid:
             self.target_mac =  self.get_dst_mac(self.target)
             self.router_mac =  self.get_dst_mac(self.router_ip)
         
@@ -91,7 +98,6 @@ class ArpSpoof:
                 self.spoof(self.router_ip, self.interface, self.target, self.hwsrc, self.router_mac)
 
                 time.sleep(2)
-
         else:
             print(colored("\n[!] Arguments Incorrect Format.\n", "red"))
             sys.exit(1)

