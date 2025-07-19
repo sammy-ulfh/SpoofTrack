@@ -9,7 +9,7 @@ const PORT = 80;
 app.use(express.json());
 
 // Servir archivos estáticos (HTML, JS, CSS) desde carpeta web
-app.use('/', express.static(path.join(__dirname, '../web')));
+app.use('/', express.static(path.join(__dirname, '../../web')));
 
 // Ruta para manejar POST desde script.js
 app.post('/api/datos', (req, res) => {
