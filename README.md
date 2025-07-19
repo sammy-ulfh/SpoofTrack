@@ -10,12 +10,12 @@
 
 **Spoof Track** is a tool designed to capture credentials from **amazon.com** for a target device connected to the same Wi-Fi network as yours. This program deceives the target device by redirecting the user to a server under you control, which simulates the **Amazon login** page to capture login credentials. Afterward, it redirects the user back to the real Amazon login page, temporarily disrupting the internet connection to make the error appear as a "no Wi-Fi connection."
 
-You can use it by providing the following options:
-    -t (target IP)
-    -r (router IP)
-    -m (your MAC address)
-    -i (network interface)
-    -ip (your IP address where the server will run)
+You can use it by providing the following options:<br/>
+    **-t (target IP)**<br/>
+    **-r (router IP)**<br/>
+    **-m (your MAC address)**<br/>
+    **-i (network interface)**<br/>
+    **-ip (your IP address where the server will run)**<br/>
 
 
 <p align="center">
@@ -135,19 +135,19 @@ Now, you understand how the tool works and what is needed to run it. Finally, yo
 
 You must specify the following options:
 
--t (target IP):<br/>
+- **t (target IP):**<br/>
     Ex: -t "192.168.100.130"
 
--r (router IP):<br/>
+- **r (router IP):**<br/>
     Ex: -r "192.168.100.1"
 
--m (your MAC address):<br/>
+- **m (your MAC address):**<br/>
     Ex: -m "aa:bb:cc:22:44:55"
 
--i (network interface):<br/>
+- **i (network interface):**<br/>
     Ex: -i "wlan0"
 
--ip (your IP address where the server will run):<br/>
+- **ip (your IP address where the server will run):**<br/>
     Ex: -ip "192.168.100.134"
 
 Then, the tool will work:
